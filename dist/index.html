@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SDEX - Sepolia Decentralized Exchange</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@4.1.1/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>SDEX - Sepolia DEX</h1>
+    <div id="status">Connecting to services...</div>
+    <div id="metamask"></div>
+    <script>
+        const ws = new WebSocket('wss://sdex-alb-664814673.ap-southeast-2.elb.amazonaws.com/ws');
+        ws.onopen = () => {
+            document.getElementById('status').textContent = 'Connected to WebSocket';
+        };
+        ws.onmessage = (event) => {
+            console.log('Received:', event.data);
+        };
+        ws.onerror = (error) => {
+            document.getElementById('status').textContent = 'WebSocket Error: ' + error;
+        };
+
+        // MetaMask Integration
+        async function connectMetaMask() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Request account access
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    // Switch to Sepolia
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0xaa36a7' }], // Sepolia chainId
+                    });
+                    
+                    document.getElementById('metamask').textContent = 'Connected to MetaMask: ' + accounts[0];
+                } catch (error) {
+                    document.getElementById('metamask').textContent = 'MetaMask Error: ' + error.message;
+                }
+            } else {
+                document.getElementById('metamask').textContent = 'Please install MetaMask';
+            }
+        }
+
+        // Add connect button
+        const connectButton = document.createElement('button');
+        connectButton.textContent = 'Connect MetaMask';
+        connectButton.onclick = connectMetaMask;
+        document.body.appendChild(connectButton);
+    </script>
+</body>
+</html>
