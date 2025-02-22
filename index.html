@@ -1,37 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SDEX - Decentralized Exchange</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="main.6cfdd60c6d0446e78031.css">
+    <title>SDEX - Sepolia Decentralized Exchange</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@4.1.1/dist/web3.min.js"></script>
 </head>
 <body>
-    <div id="connection-status"></div>
-    <div id="main-content">
-        <!-- Your existing content -->
-    </div>
-
-    <!-- Load Web3 and MetaMask integration -->
-    <script src="dist/bundle.js"></script>
+    <h1>SDEX - Sepolia DEX</h1>
+    <div id="status">Connecting to services...</div>
+    <div id="metamask"></div>
     <script>
-        // Initialize Web3 when the page loads
-        window.addEventListener('load', async () => {
-            try {
-                const success = await initWeb3();
-                if (success) {
-                    document.getElementById('connection-status').innerHTML = 
-                        '<div class="alert alert-success">Connected to MetaMask on Sepolia network</div>';
-                } else {
-                    document.getElementById('connection-status').innerHTML = 
-                        '<div class="alert alert-danger">Failed to connect to MetaMask</div>';
+        const ws = new WebSocket('wss://sdex-alb-664814673.ap-southeast-2.elb.amazonaws.com/ws');
+        ws.onopen = () => {
+            document.getElementById('status').textContent = 'Connected to WebSocket';
+        };
+        ws.onmessage = (event) => {
+            console.log('Received:', event.data);
+        };
+        ws.onerror = (error) => {
+            document.getElementById('status').textContent = 'WebSocket Error: ' + error;
+        };
+
+        // MetaMask Integration
+        async function connectMetaMask() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Request account access
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    // Switch to Sepolia
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0xaa36a7' }], // Sepolia chainId
+                    });
+                    
+                    document.getElementById('metamask').textContent = 'Connected to MetaMask: ' + accounts[0];
+                } catch (error) {
+                    document.getElementById('metamask').textContent = 'MetaMask Error: ' + error.message;
                 }
-            } catch (error) {
-                console.error('Error initializing Web3:', error);
-                document.getElementById('connection-status').innerHTML = 
-                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            } else {
+                document.getElementById('metamask').textContent = 'Please install MetaMask';
             }
-        });
+        }
+
+        // Add connect button
+        const connectButton = document.createElement('button');
+        connectButton.textContent = 'Connect MetaMask';
+        connectButton.onclick = connectMetaMask;
+        document.body.appendChild(connectButton);
     </script>
 </body>
 </html>
