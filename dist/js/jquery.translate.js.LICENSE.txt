@@ -1,0 +1,11 @@
+/**
+ * @file jquery.translate.js
+ * @brief jQuery plugin to translate text in the client side.
+ * @author Manuel Fernandes
+ * @site
+ * @version 0.9
+ * @license MIT license <http://www.opensource.org/licenses/MIT>
+ *
+ * translate.js is a jQuery plugin to translate text in the client side.
+ *
+ */
